@@ -25,40 +25,54 @@ class Orders extends ResourceController
 
         $this->model->update($orderId, ['total_price' => $totalPrice]);
 
-        $printers = $this->determinePrinters($data->items);
+        $printerStatus = $this->determinePrinterStatus($data->items);
+        $this->model->setPrinterStatus($orderId, $printerStatus);
+
+        $printers = $this->getPrinterNames($printerStatus);
 
         return $this->respond(['order_id' => $orderId, 'printers' => $printers]);
     }
 
-    private function determinePrinters($items)
+    private function determinePrinterStatus($items)
     {
-        $printers = ['A'];
-        $hasFood = false;
-        $hasDrink = false;
-    
+        $status = 0;
+
         foreach ($items as $item) {
-            
             $product = $this->model->getProductById($item->product_id);
-    
+
             if ($product) {
                 if ($product->category === 'Makanan' || $product->name === 'Promo Nasi Goreng + Jeruk Dingin') {
-                    $hasFood = true;
-                } elseif ($product->category === 'Minuman') {
-                    $hasDrink = true;
+                    $status |= (1 << 1); // Set bit 1 for Printer Dapur
+                }
+                if ($product->category === 'Minuman') {
+                    $status |= (1 << 2); // Set bit 2 for Printer Bar
+                }
+                if ($product->name === 'Nasi Goreng + Jeruk Dingin') {
+                    $status |= (1 << 0); // Set bit 0 for Printer Kasir
                 }
             }
         }
-    
-        if ($hasFood) {
-            $printers[] = 'B';
-        }
-        if ($hasDrink) {
-            $printers[] = 'C';
-        }
-    
-        return array_unique($printers);
+
+        return $status;
     }
-    
+
+    private function getPrinterNames($printerStatus)
+    {
+        $printers = [
+            0 => 'Printer Kasir',
+            1 => 'Printer Dapur (Makanan)',
+            2 => 'Printer Bar (Minuman)'
+        ];
+
+        $printerNames = [];
+        foreach ($printers as $bit => $printer) {
+            if ($printerStatus & (1 << $bit)) {
+                $printerNames[] = $printer;
+            }
+        }
+
+        return $printerNames;
+    }
 
     public function show($id = null)
     {
@@ -69,6 +83,10 @@ class Orders extends ResourceController
 
         $details = $this->model->getOrderDetails($id);
         $order['details'] = $details;
+
+        
+        $printerStatus = $this->model->getPrinterStatus($id);
+        $order['printers'] = $this->getPrinterNames($printerStatus);
 
         return $this->respond($order);
     }

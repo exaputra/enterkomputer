@@ -6,7 +6,7 @@ class OrderModel extends Model
 {
     protected $table = 'orders';
     protected $primaryKey = 'id';
-    protected $allowedFields = ['table_number', 'total_price'];
+    protected $allowedFields = ['table_number', 'total_price', 'printer_status'];
 
     public function getProductById($id)
     {
@@ -30,5 +30,15 @@ class OrderModel extends Model
                         ->select('products.name, order_details.quantity, products.price')
                         ->get()
                         ->getResultArray();
+    }
+
+    public function setPrinterStatus($orderId, $status)
+    {
+        $this->update($orderId, ['printer_status' => $status]);
+    }
+
+    public function getPrinterStatus($orderId)
+    {
+        return $this->find($orderId)['printer_status'];
     }
 }
