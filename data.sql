@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 06, 2024 at 09:53 AM
+-- Generation Time: Aug 06, 2024 at 12:24 PM
 -- Server version: 10.4.25-MariaDB
 -- PHP Version: 7.4.30
 
@@ -31,15 +31,16 @@ CREATE TABLE `orders` (
   `id` int(11) NOT NULL,
   `table_number` varchar(50) NOT NULL,
   `total_price` decimal(10,2) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `printer_status` int(11) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `orders`
 --
 
-INSERT INTO `orders` (`id`, `table_number`, `total_price`, `created_at`) VALUES
-(1, 'MEJA NO 1', '87000.00', '2024-08-06 06:00:01');
+INSERT INTO `orders` (`id`, `table_number`, `total_price`, `created_at`, `printer_status`) VALUES
+(1, 'MEJA NO 1', '87000.00', '2024-08-06 06:00:01', 0);
 
 -- --------------------------------------------------------
 
